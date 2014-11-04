@@ -2,7 +2,7 @@ hypervisor-zram-root
 ====================
 
 Configuration files for booting root file system from [snapshottable] Logical volume (LV)
-which Volume group (VG) resides on [zram] (compressed in memory block device).
+which Volume group (VG) resides on [zram].
 
 Conf files are based on Debian Wheezy.
 
