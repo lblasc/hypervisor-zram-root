@@ -98,13 +98,22 @@ mountroot()
 	# FIXME This has no error checking
 	modprobe ${FSTYPE}
 
-	# FIXME This has no error checking
-	# Mount root
-	if [ "${FSTYPE}" != "unknown" ]; then
-		mount ${roflag} -t ${FSTYPE} ${ROOTFLAGS} ${ROOT} ${rootmnt}
-	else
-		mount ${roflag} ${ROOTFLAGS} ${ROOT} ${rootmnt}
-	fi
+	mkdir /ramboottmp
+	mount ${roflag} -t ${FSTYPE} ${ROOTFLAGS} ${ROOT} /ramboottmp
+
+	modprobe zram num_devices=1
+	echo 1 > /sys/block/zram0/reset
+	echo lz4 > /sys/block/zram0/comp_algorithm
+	echo $((3072*1024*1024)) > /sys/block/zram0/disksize
+
+	vgcreate memvg /dev/zram0
+	lvcreate -l 66%VG -n root memvg
+
+	mkfs.ext4 -O dir_nlink,extent,extra_isize,flex_bg,^has_journal,uninit_bg -b 4096 -L "zramroot" /dev/mapper/memvg-root
+	mount -t ext4 -o discard,barrier=0,commit=240,noatime,nodiratime,data=writeback /dev/mapper/memvg-root ${rootmnt}	
+
+	cp -rfa /ramboottmp/* ${rootmnt}
+	umount /ramboottmp
 
 	[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/local-bottom"
 	run_scripts /scripts/local-bottom
