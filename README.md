@@ -6,6 +6,8 @@ which Volume group (VG) resides on [zram].
 
 Conf files are based on Debian Wheezy.
 
+Requierd extra packages (in addition to minimal base): lvm2, virt-what
+
 HOWTO
 -----
 

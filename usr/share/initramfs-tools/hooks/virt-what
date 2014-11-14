@@ -1,0 +1,23 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case $1 in
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+if [ ! -x /usr/lib/virt-what/virt-what-cpuid-helper ]; then
+	exit 0
+fi
+
+. /usr/share/initramfs-tools/hook-functions
+
+copy_exec /usr/lib/virt-what/virt-what-cpuid-helper
